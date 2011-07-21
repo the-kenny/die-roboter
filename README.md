@@ -28,9 +28,9 @@ The Robots get your work done in an straightforward way.
     (roboter/work) ; on the worker nodes (this will block)
     
     ;; ordering around
-    (roboter/send-off '(println "what are the haps")) ; returns immediately
+    (roboter/send-off '(println "Boing, Boom Tschak.")) ; returns immediately
 
-    (roboter/broadcast '(println "greetings all workers")) ; runs on all nodes
+    (roboter/broadcast '(println "Greetings all Programs!")) ; runs on all nodes
 
     (let [f (roboter/future
               (slurp "/etc/hosts"))]
@@ -45,7 +45,7 @@ The Robots get your work done in an straightforward way.
     ;; but you can pick up stragglers explicitly:
     
     (roboter/register #'my-job)
-    (roboter/auto-register #"my.project") ; searches all matching namespaces
+    (roboter/auto-register "my.project") ; searches all matching namespaces
 
 Jobs will not ack to the server until they've completed successfully,
 so workers that throw exceptions or disappear entirely will have their
@@ -55,7 +55,7 @@ using `clojure.tools.logging/warn`, but you can rebind
 message back to the server:
 
     (defn handle-tachyon [e msg]
-      (if (re-find #"tachyon") ; tachyon failures don't need to be retried
+      (if (re-find #"tachyon" (.getMessage e)) ; tachyon failures don't get retried
         (com.mefesto.wabbitmq/ack (-> msg :envelope :delivery-tag))
         (println "Oh, we got trouble!" (.getMessage e))))
 
@@ -65,12 +65,12 @@ message back to the server:
 AMQP is used as the transport. [RabbitMQ](http://rabbitmq.com) is a
 popular choice. Most functions take an optional `config` argument that
 can be used to specify the AMQP connection settings, but you can also
-use the `with-roboter` macro to bind it dynamically.
+use the `with-robots` macro to bind it dynamically.
 
     (roboter/broadcast '(println "Greetings, programs") {:host "10.1.12.99"})
 
-    (roboter/with-roboter {:username "flynn" :password "reindeerflotilla"}
-      (roboter/broadcast `(println "Started working on" hostname))
+    (roboter/with-robots {:username "flynn" :password "reindeerflotilla"}
+      (roboter/broadcast `(println "Started working on" ~hostname))
       (roboter/work))
 
 ## Todo
