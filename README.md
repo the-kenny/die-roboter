@@ -82,6 +82,8 @@ use the `with-roboter` macro to bind it dynamically.
 
 ## License
 
-Copyright (C) 2011 Phil Hagelberg
+Image and lyrics quoted above copyright © 1979 Kraftwerk.
+
+Code copyright © 2011 Phil Hagelberg.
 
 Distributed under the Eclipse Public License, the same as Clojure.
