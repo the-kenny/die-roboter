@@ -25,6 +25,9 @@
                                 (:exchange-auto-delete config false))
        (wabbit/queue-declare (:queue config "die.roboter.work")
                              (:durable config true))
+       (wabbit/queue-bind (:queue config "die.roboter.work")
+                          (:exchange config "die.roboter")
+                          (:queue config "die.roboter.work"))
        (catch Exception e
          (log/error e "Couldn't declare exchange/queue."))))
 
