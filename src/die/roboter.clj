@@ -3,8 +3,9 @@
   (:refer-clojure :exclude [future send-off])
   (:require [com.mefesto.wabbitmq :as wabbit]
             [clojure.tools.logging :as log]
-            [leiningen.util.ns :as ns]) ; TODO: spin off into lib
+            [leiningen.util.ns :as ns]) ; TODO: use clojure.tools.namespace
   (:import (java.util UUID)
+           (java.util.concurrent Executors TimeUnit TimeoutException)
            (java.lang.management ManagementFactory)))
 
 (def ^{:doc "Namespace in which robots work." :private true} context
@@ -72,25 +73,6 @@
         (wabbit/with-queue reply-queue#
           (-> (wabbit/consuming-seq true) first :body String. read-string))))))
 
-(defn register
-  "Register var to be available for robots to run."
-  [var]
-  (binding [*ns* context]
-    (refer (.getName (:ns (meta var))) :only [(:name (meta var))])))
-
-(defn auto-register
-  "Register all vars with :robots metadata in namespaces starting with prefix.
-   This requires the namespaces, so it could cause code to be loaded. prefix
-   defaults to the empty string."
-  ([prefix]
-     (doseq [namespace (ns/namespaces-matching prefix)]
-       (try (with-out-str (require namespace))
-            (doseq [[_ var] (ns-publics namespace)
-                    :when (:robots (meta var))]
-              (register var))
-            (catch Throwable _))))
-  ([] (auto-register "")))
-
 (defn- consume [{:keys [body envelope] :as msg}]
   (binding [*ns* context,*current-message* msg]
     ;; TODO: timeouts
@@ -101,8 +83,6 @@
 (defn work
   "Wait for work and eval it continually."
   ([config]
-     (when (:auto-register config true)
-       (auto-register (:auto-register config "")))
      (with-robots config
        (wabbit/with-queue (:queue config "die.roboter.work")
          (log/trace "Consuming on" (:queue config "die.roboter.work"))

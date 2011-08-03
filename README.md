@@ -28,24 +28,13 @@ The Robots get your work done in an straightforward way.
     (roboter/work) ; on the worker nodes (this will block)
     
     ;; ordering around
-    (roboter/send-off '(println "Boing, Boom Tschak.")) ; returns immediately
+    (roboter/send-off `(println "Boing, Boom Tschak.")) ; returns immediately
 
-    (roboter/broadcast '(println "Greetings all Programs!")) ; runs on all nodes
+    (roboter/broadcast `(println "Greetings all Programs!")) ; runs on all nodes
 
     (let [f (roboter/future
               (slurp "/etc/hosts"))]
       (println @f)) ; when you need a return value back
-
-    ;; By default only clojure/core is available for robot
-    ;; workers, but you can tag defns to make them available.
-    (defn ^{:roboter true} my-job [a b c]
-      (prn :my-job {:a a :b b :c c})
-
-    ;; These defns should be loaded before you run roboter/work,
-    ;; but you can pick up stragglers explicitly:
-    
-    (roboter/register #'my-job)
-    (roboter/auto-register "my.project") ; searches all matching namespaces
 
 Jobs will not ack to the server until they've completed successfully,
 so workers that throw exceptions or disappear entirely will have their
@@ -79,6 +68,7 @@ use the `with-robots` macro to bind it dynamically.
 * Thread pooling
 * Switch to tools.namespace once it's fixed
 * Fix broadcast (see failing test)
+* Control queue
 
 ## License
 
