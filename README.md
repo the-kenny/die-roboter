@@ -51,6 +51,13 @@ message back to the server:
     (binding [roboter/*exception-handler* handle-tachyon]
       (roboter/work))
 
+By default each job has five minutes to complete before it is
+considered hung and are killed, returning its work to the queue. The
+timeout can be overridden by rebinding `die.roboter/\*timeout\*` or
+passing in a `:timeout` config key to the `work` function. You can
+also avoid timing out by calling the `die.roboter/report-progress`
+function, which resets the timer back to the start.
+
 AMQP is used as the transport. [RabbitMQ](http://rabbitmq.com) is a
 popular choice. Most functions take an optional `config` argument that
 can be used to specify the AMQP connection settings, but you can also
@@ -64,11 +71,10 @@ use the `with-robots` macro to bind it dynamically.
 
 ## Todo
 
-* Timeouts
-* Thread pooling
+* Test timeout functionality
 * Switch to tools.namespace once it's fixed
-* Fix broadcast (see failing test)
-* Control queue
+* Fix race condition in broadcast tests
+* Control worker count via queue
 
 ## License
 
